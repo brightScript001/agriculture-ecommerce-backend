@@ -32,5 +32,10 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Catch-all route for invalid endpoints
+app.use((req, res) => {
+  res.status(404).json({ message: "Endpoint not found" });
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
