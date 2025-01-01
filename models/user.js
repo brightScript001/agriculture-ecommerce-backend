@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto"); // for generating token
 
 const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
@@ -7,6 +8,8 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, enum: ["buyer", "seller"], required: true },
+  emailConfirmed: { type: Boolean, default: false },
+  emailConfirmedToken: { type: String },
 });
 
 // Hash password before saving the user
@@ -21,5 +24,17 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
+
+//Generate email confirmation token
+userSchema.methods.generateEmailConfirmToken = function () {
+  const token = crypto.randomBytes(20).toString("hex");
+};
+
+// hash and store token
+this.emailConfirmedToken = crypto
+  .createHash("sha256")
+  .update(token)
+  .digest("hex");
+return token;
 
 module.exports = mongoose.model("User", userSchema);
