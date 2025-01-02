@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const crypto = require("crypto"); // for generating token
+const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
@@ -10,6 +10,8 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ["buyer", "seller"], required: true },
   emailConfirmed: { type: Boolean, default: false },
   emailConfirmedToken: { type: String },
+  isVerified: { type: Boolean, default: false },
+  verificationToken: { type: String },
 });
 
 // Hash password before saving the user
@@ -25,16 +27,24 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-//Generate email confirmation token
+// Generate email confirmation token
 userSchema.methods.generateEmailConfirmToken = function () {
   const token = crypto.randomBytes(20).toString("hex");
+  this.emailConfirmedToken = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+  return token;
 };
 
-// hash and store token
-this.emailConfirmedToken = crypto
-  .createHash("sha256")
-  .update(token)
-  .digest("hex");
-return token;
+// Generate a new verification token for resending email
+userSchema.methods.generateVerificationToken = function () {
+  const token = crypto.randomBytes(20).toString("hex");
+  this.verificationToken = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+  return token;
+};
 
 module.exports = mongoose.model("User", userSchema);
