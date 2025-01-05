@@ -23,7 +23,6 @@ const sendConfirmationEmail = async (user) => {
     },
   });
 
-  // Construct the confirmation URL
   const confirmUrl = `${process.env.FRONTEND_URL}/confirm-email/${token}`;
 
   // Setup email options
