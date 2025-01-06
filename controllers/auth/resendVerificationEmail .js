@@ -1,31 +1,30 @@
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-const user = require("../../models/user");
+const User = require("../../models/user");
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
-// Function to resend verification email
 exports.resendVerificationEmail = async (req, res) => {
   try {
     const { email } = req.body;
 
     // Find user by email
-    const user = await user.findOne({ email });
+    const existingUser = await User.findOne({ email });
 
-    if (!user) {
+    if (!existingUser) {
       return res.status(404).json({ message: "User not found." });
     }
 
-    if (user.isVerified) {
+    if (existingUser.isVerified) {
       return res.status(400).json({ message: "Email is already verified." });
     }
 
     // Generate a new verification token
-    const newToken = jwt.sign({ email: user.email }, SECRET_KEY, {
+    const newToken = jwt.sign({ email: existingUser.email }, SECRET_KEY, {
       expiresIn: "1h",
     });
-    user.verificationToken = newToken; // Save to database if needed
-    await user.save();
+    existingUser.verificationToken = newToken; // Save to database
+    await existingUser.save();
 
     // Send email (using nodemailer or any email service)
     const transporter = nodemailer.createTransport({
@@ -36,20 +35,28 @@ exports.resendVerificationEmail = async (req, res) => {
       },
     });
 
+    // Construct verification link
+    const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${newToken}`;
+
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: user.email,
+      to: existingUser.email,
       subject: "Resend Email Verification",
-      text: `Click the link to verify your email: http://localhost:3000/verify-email/${newToken}`,
+      text: `Click the link to verify your email: ${verifyUrl}`,
+      html: `<p>Click the link below to verify your email:</p>
+             <a href="${verifyUrl}">${verifyUrl}</a>`,
     };
 
     await transporter.sendMail(mailOptions);
 
-    return res.status(200).json({ message: "Verification email resent." });
+    return res
+      .status(200)
+      .json({ message: "Verification email resent successfully." });
   } catch (err) {
     console.error(err);
-    return res
-      .status(500)
-      .json({ message: "An error occurred. Please try again." });
+    return res.status(500).json({
+      message:
+        "An error occurred while resending the verification email. Please try again.",
+    });
   }
 };

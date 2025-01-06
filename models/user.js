@@ -3,15 +3,24 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  firstName: { type: String, required: true, trim: true },
+  lastName: { type: String, required: true, trim: true },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    lowercase: true,
+    match: [/\S+@\S+\.\S+/, "Please provide a valid email address"],
+  },
+  password: { type: String, required: true, minlength: 6 },
   role: { type: String, enum: ["buyer", "seller"], required: true },
   emailConfirmed: { type: Boolean, default: false },
   emailConfirmedToken: { type: String },
+  emailConfirmedTokenExpires: { type: Date }, // Optional expiry field for token
   isVerified: { type: Boolean, default: false },
   verificationToken: { type: String },
+  verificationTokenExpires: { type: Date }, // Optional expiry field for token
 });
 
 // Hash password before saving the user
@@ -34,6 +43,7 @@ userSchema.methods.generateEmailConfirmToken = function () {
     .createHash("sha256")
     .update(token)
     .digest("hex");
+  this.emailConfirmedTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24-hour expiry
   return token;
 };
 
@@ -44,6 +54,7 @@ userSchema.methods.generateVerificationToken = function () {
     .createHash("sha256")
     .update(token)
     .digest("hex");
+  this.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24-hour expiry
   return token;
 };
 
