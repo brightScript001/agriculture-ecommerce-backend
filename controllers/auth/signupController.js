@@ -1,9 +1,11 @@
 const nodemailer = require("nodemailer");
-const crypto = require("crypto");
 const User = require("../../models/user");
 
-// Function to generate a confirmation token and send an email
 const sendConfirmationEmail = async (user, isResend = false) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || !process.env.FRONTEND_URL) {
+    throw new Error("Missing required environment variables for email service.");
+  }
+
   try {
     const token = user.generateEmailConfirmToken();
     await user.save();
@@ -17,9 +19,7 @@ const sendConfirmationEmail = async (user, isResend = false) => {
     });
 
     const confirmUrl = `${process.env.FRONTEND_URL}/confirm-email/${token}`;
-    const subject = isResend
-      ? "Resend Email Verification"
-      : "Email Verification";
+    const subject = isResend ? "Resend Email Verification" : "Email Verification";
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -44,12 +44,11 @@ const sendConfirmationEmail = async (user, isResend = false) => {
         </p>
         <p style="color: #666;">If you did not sign up for this account, you can safely ignore this email.</p>
         <p>Best regards,</p>
-        <p><strong>Your Company Team</strong></p>
+        <p><strong>OneFarm Team</strong></p>
       </div>
       `,
     };
 
-    // Send the email
     await transporter.sendMail(mailOptions);
   } catch (error) {
     console.error("Error sending confirmation email:", error.message);
@@ -57,15 +56,17 @@ const sendConfirmationEmail = async (user, isResend = false) => {
   }
 };
 
-// Signup Controller
 const signupUser = async (req, res) => {
   const { firstName, lastName, email, password, role } = req.body;
 
   try {
-    // Check if the user already exists
+    if (!firstName || !lastName || !email || !password || !role) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({ message: "User already exists." });
     }
 
     // Create a new user
@@ -77,12 +78,11 @@ const signupUser = async (req, res) => {
       role,
     });
 
-    // Send email confirmation link
     await sendConfirmationEmail(newUser);
 
     res.status(201).json({
       message:
-        "User created successfully. Please check your email to confirm your account.",
+          "User created successfully. Please check your email to confirm your account.",
     });
   } catch (error) {
     console.error("Signup error:", error.message);
