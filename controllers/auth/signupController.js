@@ -5,11 +5,9 @@ const User = require("../../models/user");
 // Function to generate a confirmation token and send an email
 const sendConfirmationEmail = async (user, isResend = false) => {
   try {
-    // Generate a confirmation token and save it
     const token = user.generateEmailConfirmToken();
     await user.save();
 
-    // Create transporter for sending the email
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
@@ -18,20 +16,18 @@ const sendConfirmationEmail = async (user, isResend = false) => {
       },
     });
 
-    // Construct the confirmation URL
     const confirmUrl = `${process.env.FRONTEND_URL}/confirm-email/${token}`;
     const subject = isResend
       ? "Resend Email Verification"
       : "Email Verification";
 
-    // Setup email options
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: user.email,
       subject,
       html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-        <h2 style="color: rgba(91, 170, 96, 1);">Welcome to Our Platform</h2>
+        <h2 style="color: rgba(91, 170, 96, 1);">Welcome to OneFarm</h2>
         <p>Hi ${user.firstName},</p>
         <p>Thank you for signing up. Please confirm your email address by clicking the link below:</p>
         <p>
