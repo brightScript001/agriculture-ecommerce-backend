@@ -36,7 +36,7 @@ exports.resendVerificationEmail = async (req, res) => {
     });
 
     // Construct verification link
-    const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${newToken}`;
+    const verifyUrl = `${process.env.FRONTEND_URL}/confirm-email/${newToken}`;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,

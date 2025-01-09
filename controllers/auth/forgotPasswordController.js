@@ -30,7 +30,7 @@ const forgotPassword = async (req, res) => {
       },
     });
 
-    const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
     const mailOptions = {
       to: user.email,
       subject: "Password Reset Request",
