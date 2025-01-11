@@ -40,7 +40,6 @@ const forgotPassword = async (req, res) => {
       },
     });
 
-    // Define email content
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
     const mailOptions = {
       to: user.email,
