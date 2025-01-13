@@ -2,30 +2,25 @@ const User = require("../../models/user");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
-// Forgot Password Controller
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
-    // Check if the user exists
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Generate a secure reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
     const hashedToken = crypto
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
 
-    // Save hashed token and expiration time in the database
     user.resetPasswordToken = hashedToken;
     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await user.save();
 
-    // Set up nodemailer transporter
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       throw new Error(
         "Email credentials are not set in the environment variables."
@@ -90,10 +85,8 @@ The ${process.env.COMPANY_NAME || "Team"}
 `,
     };
 
-    // Send the email
     await transporter.sendMail(mailOptions);
 
-    // Respond to the client
     res.status(200).json({ message: "Password reset email sent" });
   } catch (error) {
     console.error("Error in forgotPassword:", error.message);

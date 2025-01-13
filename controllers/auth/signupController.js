@@ -2,8 +2,14 @@ const nodemailer = require("nodemailer");
 const User = require("../../models/user");
 
 const sendConfirmationEmail = async (user, isResend = false) => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || !process.env.FRONTEND_URL) {
-    throw new Error("Missing required environment variables for email service.");
+  if (
+    !process.env.EMAIL_USER ||
+    !process.env.EMAIL_PASS ||
+    !process.env.FRONTEND_URL
+  ) {
+    throw new Error(
+      "Missing required environment variables for email service."
+    );
   }
 
   try {
@@ -19,7 +25,9 @@ const sendConfirmationEmail = async (user, isResend = false) => {
     });
 
     const confirmUrl = `${process.env.FRONTEND_URL}/confirm-email/${token}`;
-    const subject = isResend ? "Resend Email Verification" : "Email Verification";
+    const subject = isResend
+      ? "Resend Email Verification"
+      : "Email Verification";
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -69,7 +77,6 @@ const signupUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists." });
     }
 
-    // Create a new user
     const newUser = await User.create({
       firstName,
       lastName,
@@ -82,7 +89,7 @@ const signupUser = async (req, res) => {
 
     res.status(201).json({
       message:
-          "User created successfully. Please check your email to confirm your account.",
+        "User created successfully. Please check your email to confirm your account.",
     });
   } catch (error) {
     console.error("Signup error:", error.message);
