@@ -1,36 +1,40 @@
-const User = require("../../models/user");
 const crypto = require("crypto");
+const User = require("../../models/user");
 const bcrypt = require("bcryptjs");
 
-// Reset Password Controller
-const resetPassword = async (req, res) => {
+const resetPasswordController = async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
 
   try {
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
+    // Find the user with the matching token and check if the token has expired
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
-      resetPasswordExpires: { $gt: Date.now() },
+      resetPasswordExpires: { $gt: Date.now() }, // Ensure the token has not expired
     });
 
     if (!user) {
       return res.status(400).json({ message: "Invalid or expired token" });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined; // Clear reset token after successful reset
+    user.resetPasswordExpires = undefined; // Clear expiration time
 
     await user.save();
 
-    res.status(200).json({ message: "Password has been reset" });
+    res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error in resetPasswordController:", error);
+    res.status(500).json({
+      message:
+        "An error occurred while resetting the password. Please try again.",
+    });
   }
 };
 
-module.exports = resetPassword;
+module.exports = resetPasswordController;

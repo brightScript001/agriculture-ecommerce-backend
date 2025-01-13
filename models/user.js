@@ -17,10 +17,12 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ["buyer", "seller"], required: true },
   emailConfirmed: { type: Boolean, default: false },
   emailConfirmedToken: { type: String },
-  emailConfirmedTokenExpires: { type: Date }, // Optional expiry field for token
+  emailConfirmedTokenExpires: { type: Date },
   isVerified: { type: Boolean, default: false },
   verificationToken: { type: String },
-  verificationTokenExpires: { type: Date }, // Optional expiry field for token
+  verificationTokenExpires: { type: Date },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
 });
 
 // Hash password before saving the user
@@ -31,7 +33,6 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// Compare entered password with hashed password
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
