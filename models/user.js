@@ -25,7 +25,6 @@ const userSchema = new mongoose.Schema({
   resetPasswordExpires: Date,
 });
 
-// Hash password before saving the user
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
@@ -37,7 +36,6 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Generate email confirmation token
 userSchema.methods.generateEmailConfirmToken = function () {
   const token = crypto.randomBytes(20).toString("hex");
   this.emailConfirmedToken = crypto
