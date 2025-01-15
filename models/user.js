@@ -42,18 +42,17 @@ userSchema.methods.generateEmailConfirmToken = function () {
     .createHash("sha256")
     .update(token)
     .digest("hex");
-  this.emailConfirmedTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24-hour expiry
+  this.emailConfirmedTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
   return token;
 };
 
-// Generate a new verification token for resending email
 userSchema.methods.generateVerificationToken = function () {
   const token = crypto.randomBytes(20).toString("hex");
   this.verificationToken = crypto
     .createHash("sha256")
     .update(token)
     .digest("hex");
-  this.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24-hour expiry
+  this.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
   return token;
 };
 
