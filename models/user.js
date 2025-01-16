@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema({
   },
   password: { type: String, required: true, minlength: 6 },
   role: { type: String, enum: ["buyer", "seller"], required: true },
+  avatar: { type: String },
   emailConfirmed: { type: Boolean, default: false },
   emailConfirmedToken: { type: String },
   emailConfirmedTokenExpires: { type: Date },
