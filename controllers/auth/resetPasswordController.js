@@ -9,10 +9,9 @@ const resetPasswordController = async (req, res) => {
   try {
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    // Find the user with the matching token and check if the token has expired
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
-      resetPasswordExpires: { $gt: Date.now() }, // Ensure the token has not expired
+      resetPasswordExpires: { $gt: Date.now() },
     });
 
     if (!user) {
@@ -22,8 +21,8 @@ const resetPasswordController = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     user.password = hashedPassword;
-    user.resetPasswordToken = undefined; // Clear reset token after successful reset
-    user.resetPasswordExpires = undefined; // Clear expiration time
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
 
     await user.save();
 

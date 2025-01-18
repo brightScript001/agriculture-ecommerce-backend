@@ -12,7 +12,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Create a new product
 exports.createProduct = [
   upload.single("imageSrc"),
   async (req, res) => {
@@ -33,7 +32,7 @@ exports.createProduct = [
         costPerKg,
         productClass,
         numberOfProducts,
-        sellerId, // Attach sellerId
+        sellerId,
         imageSrc: req.file ? req.file.path : null,
       });
 
@@ -47,7 +46,6 @@ exports.createProduct = [
   },
 ];
 
-// Fetch all products
 exports.getProducts = async (req, res) => {
   try {
     const products = await Product.find();
@@ -59,7 +57,6 @@ exports.getProducts = async (req, res) => {
   }
 };
 
-// Fetch product by ID
 exports.getProductsById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -73,7 +70,6 @@ exports.getProductsById = async (req, res) => {
   }
 };
 
-// Fetch products by sellerId
 exports.getProductsBySeller = async (req, res) => {
   try {
     const { _id: sellerId } = req.params;
@@ -86,7 +82,6 @@ exports.getProductsBySeller = async (req, res) => {
   }
 };
 
-// Update product
 exports.updateProduct = [
   upload.single("imageSrc"),
   async (req, res) => {
@@ -113,7 +108,6 @@ exports.updateProduct = [
   },
 ];
 
-// Delete product
 exports.deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;

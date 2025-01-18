@@ -8,7 +8,6 @@ exports.resendVerificationEmail = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // Find user by email
     const existingUser = await User.findOne({ email });
 
     if (!existingUser) {
@@ -19,14 +18,12 @@ exports.resendVerificationEmail = async (req, res) => {
       return res.status(400).json({ message: "Email is already verified." });
     }
 
-    // Generate a new verification token
     const newToken = jwt.sign({ email: existingUser.email }, SECRET_KEY, {
       expiresIn: "1h",
     });
-    existingUser.verificationToken = newToken; // Save to database
+    existingUser.verificationToken = newToken;
     await existingUser.save();
 
-    // Send email (using nodemailer or any email service)
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -35,7 +32,6 @@ exports.resendVerificationEmail = async (req, res) => {
       },
     });
 
-    // Construct verification link
     const verifyUrl = `${process.env.FRONTEND_URL}/confirm-email/${newToken}`;
 
     const mailOptions = {

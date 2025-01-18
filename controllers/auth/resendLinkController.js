@@ -2,7 +2,6 @@ const User = require("../../models/user");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
-// Resend Password Reset Link Controller
 const resendLink = async (req, res) => {
   const { email } = req.body;
 
@@ -44,7 +43,7 @@ const resendLink = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
 
-    const resetUrl =  `${process.env.FRONTEND_URL}/reset-password/${resetToken}`
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
     const mailOptions = {
       to: user.email,
       subject: "Resend Password Reset Request",
