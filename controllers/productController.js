@@ -16,6 +16,7 @@ exports.createProduct = [
   upload.single("imageSrc"),
   async (req, res) => {
     try {
+      console.log("Authenticated User:", req.user);
       const {
         productName,
         description,
@@ -24,7 +25,7 @@ exports.createProduct = [
         numberOfProducts,
       } = req.body;
 
-      const sellerId = req.user._id;
+      const sellerId = req.user.id;
 
       const product = new Product({
         productName,
