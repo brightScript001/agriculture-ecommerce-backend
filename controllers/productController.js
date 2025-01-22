@@ -26,7 +26,6 @@ exports.createProduct = [
       } = req.body;
 
       const sellerId = req.user.id;
-
       const product = new Product({
         productName,
         description,
