@@ -28,6 +28,11 @@ const loginUser = async (req, res) => {
       email: user.email,
       role: user.role,
       avatar: user.avatar,
+      dateOfBirth: user.dateOfBirth,
+      phoneNumber: user.phoneNumber,
+      state: user.state,
+      city: user.city,
+      address: user.address,
       token: generateToken(user.id, user.role),
     });
   } catch (error) {
