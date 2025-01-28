@@ -1,7 +1,12 @@
-const Product = require("../models/product");
-const multer = require("multer");
+import Product, {
+  find,
+  findById,
+  findByIdAndUpdate,
+  findByIdAndDelete,
+} from "../models/product";
+import multer, { diskStorage } from "multer";
 
-const storage = multer.diskStorage({
+const storage = diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
   },
@@ -12,7 +17,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-exports.createProduct = [
+export const createProduct = [
   upload.single("imageSrc"),
   async (req, res) => {
     try {
@@ -46,21 +51,21 @@ exports.createProduct = [
   },
 ];
 
-exports.getProducts = async (req, res) => {
+export async function getProducts(req, res) {
   try {
-    const products = await Product.find();
+    const products = await find();
     res.json(products);
   } catch (err) {
     res
       .status(500)
       .json({ message: "Failed to fetch products", error: err.message });
   }
-};
+}
 
-exports.getProductsById = async (req, res) => {
+export async function getProductsById(req, res) {
   try {
     const { id } = req.params;
-    const product = await Product.findById(id);
+    const product = await findById(id);
     if (!product) return res.status(404).json({ message: "Product not found" });
     res.json(product);
   } catch (err) {
@@ -68,21 +73,21 @@ exports.getProductsById = async (req, res) => {
       .status(500)
       .json({ message: "Failed to fetch product", error: err.message });
   }
-};
+}
 
-exports.getProductsBySeller = async (req, res) => {
+export async function getProductsBySeller(req, res) {
   try {
     const { _id: sellerId } = req.params;
-    const products = await Product.find({ sellerId });
+    const products = await find({ sellerId });
     res.json(products);
   } catch (err) {
     res
       .status(500)
       .json({ message: "Failed to fetch products", error: err.message });
   }
-};
+}
 
-exports.updateProduct = [
+export const updateProduct = [
   upload.single("imageSrc"),
   async (req, res) => {
     try {
@@ -92,7 +97,7 @@ exports.updateProduct = [
         imageSrc: req.file ? req.file.path : req.body.imageSrc,
       };
 
-      const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
+      const updatedProduct = await findByIdAndUpdate(id, updateData, {
         new: true,
       });
 
@@ -108,10 +113,10 @@ exports.updateProduct = [
   },
 ];
 
-exports.deleteProduct = async (req, res) => {
+export async function deleteProduct(req, res) {
   try {
     const { id } = req.params;
-    const deletedProduct = await Product.findByIdAndDelete(id);
+    const deletedProduct = await findByIdAndDelete(id);
     if (!deletedProduct)
       return res.status(404).json({ message: "Product not found" });
 
@@ -121,4 +126,4 @@ exports.deleteProduct = async (req, res) => {
       .status(500)
       .json({ message: "Failed to delete product", error: err.message });
   }
-};
+}

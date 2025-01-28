@@ -1,8 +1,8 @@
-const User = require("../models/user");
+import { findById, findByIdAndUpdate } from "../models/user";
 
-exports.getUser = async (req, res) => {
+export async function getUser(req, res) {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await findById(req.user.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     } else {
@@ -13,11 +13,11 @@ exports.getUser = async (req, res) => {
       .status(500)
       .json({ message: "Failed to fetch user", error: error.message });
   }
-};
+}
 
-exports.updateUserInfo = async (req, res) => {
+export async function updateUserInfo(req, res) {
   try {
-    const updatedUser = await User.findByIdAndUpdate(req.user.id, req.body, {
+    const updatedUser = await findByIdAndUpdate(req.user.id, req.body, {
       new: true,
     });
     if (!updatedUser) {
@@ -29,4 +29,4 @@ exports.updateUserInfo = async (req, res) => {
       .status(500)
       .json({ message: "Failed to update user", error: err.message });
   }
-};
+}
