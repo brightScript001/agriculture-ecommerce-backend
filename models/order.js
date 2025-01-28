@@ -9,7 +9,7 @@ const orderDetailScheme = new mongoose.Schema({
 
 const orderSchema = new mongoose.Schema({
   customerName: { type: String, required: true },
-  orderId: { type: String, required: true },
+  orderId: { type: String, required: true, unique: true },
   orderDetails: { type: [orderDetailScheme], required: true },
   shippingAddress: { type: String, required: true },
   dateOfOrder: { type: Date, default: Date.now },
