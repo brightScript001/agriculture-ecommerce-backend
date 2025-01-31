@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Order = require("../models/order");
 
 exports.fetchOrders = async (req, res) => {
@@ -15,14 +16,25 @@ exports.fetchOrders = async (req, res) => {
 
 exports.fetchOrderById = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
+    console.log("Received request params:", req.params);
+
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid order ID" });
+    }
+
+    const order = await Order.findById(id);
     if (!order) {
       return res
         .status(404)
         .json({ success: false, message: "Order not found" });
     }
+
     res.status(200).json({ success: true, data: order });
   } catch (error) {
+    console.error("Error fetching order:", error);
     res.status(500).json({
       success: false,
       message: "Failed to fetch order",
@@ -61,11 +73,10 @@ exports.updateOrderStatus = async (req, res) => {
 };
 
 exports.createOrder = async (req, res) => {
-  const { customerName, orderId, orderDetails, shippingAddress, orderStatus } =
-    req.body;
+  const { customerName, orderDetails, shippingAddress, orderStatus } = req.body;
 
   try {
-    if (!customerName || !orderId || !orderDetails || !shippingAddress) {
+    if (!customerName || !orderDetails || !shippingAddress) {
       return res
         .status(400)
         .json({ success: false, message: "All fields are required" });
@@ -78,7 +89,6 @@ exports.createOrder = async (req, res) => {
 
     const newOrder = new Order({
       customerName,
-      orderId,
       orderDetails,
       shippingAddress,
       orderStatus: orderStatus || "pending",
