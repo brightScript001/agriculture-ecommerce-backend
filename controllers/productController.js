@@ -122,3 +122,25 @@ exports.deleteProduct = async (req, res) => {
       .json({ message: "Failed to delete product", error: err.message });
   }
 };
+
+exports.getProductByClass = async (req, res) => {
+  try {
+    const { productClass } = req.params;
+
+    if (!productClass) {
+      return res.status(400).json({ message: "Product class is required" });
+    }
+    const products = await Product.find({ productClass });
+
+    if (!products.length) {
+      return res
+        .status(404)
+        .json({ message: `No products found for ${productClass}` });
+    }
+    res.status(200).json({ success: true, data: products });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed  to fetch products", error: error.message });
+  }
+};
