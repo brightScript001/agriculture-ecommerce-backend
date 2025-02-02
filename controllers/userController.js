@@ -3,6 +3,7 @@ const User = require("../models/user");
 exports.getUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
+    console.log(user)
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     } else {
