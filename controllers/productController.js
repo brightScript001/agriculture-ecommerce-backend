@@ -11,12 +11,11 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-
 exports.createProduct = [
   upload.single("imageSrc"),
   async (req, res) => {
     try {
-      console.log("Authenticated User:", req.user);
+      console.log("Received file:", req.file);
       const {
         productName,
         description,
