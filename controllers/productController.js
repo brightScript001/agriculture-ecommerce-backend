@@ -1,9 +1,14 @@
 const Product = require("../models/product");
 const multer = require("multer");
 
+const fs = require("fs");
+const path = require("path");
+
+const uploadDir = path.join(__dirname, "../uploads");
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
@@ -11,6 +16,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
 exports.createProduct = [
   upload.single("imageSrc"),
   async (req, res) => {
@@ -32,7 +38,7 @@ exports.createProduct = [
         productClass,
         numberOfProducts,
         sellerId,
-        imageSrc: req.file ? req.file.path : null,
+        imageSrc: req.file.path,
       });
 
       const savedProduct = await product.save();
